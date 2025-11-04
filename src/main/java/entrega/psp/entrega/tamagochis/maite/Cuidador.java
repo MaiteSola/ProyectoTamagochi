@@ -45,25 +45,40 @@ public class Cuidador {
             System.out.println("4. Ver estado de todos");
             System.out.println("5. Matar un Tamagotchi");
             System.out.println("6. Salir");
+            consultarEstado(listaTamagochis);
             System.out.print("Elige una opción: ");
             opcion = scan.nextLine();
 
             switch (opcion) {
-                case "1": alimentarse(scan, listaTamagochis);
-                case "2": jugar(scan, listaTamagochis);
-                case "3": limpiar(scan, listaTamagochis);
-                case "4": consultarEstado(listaTamagochis);
-                case "5": matar(scan, listaTamagochis);
+                case "1": alimentarse(scan, listaTamagochis);break;
+                case "2": jugar(scan, listaTamagochis);break;
+                case "3": limpiar(scan, listaTamagochis);break;
+                case "4": consultarEstado(listaTamagochis); break;
+                case "5": matar(scan, listaTamagochis); break;
                 case "6": System.out.println("Saliendo del programa...");
-                default : System.out.println("Opción no válida. Intenta de nuevo.");
+                System.exit(0);
+                default :System.out.println("Opción no válida. Intenta de nuevo.");break;
             }
         } while (!opcion.equals("6"));
     }
 
     public static void alimentarse(Scanner scan, ArrayList<Tamagochi> lista) {
         Tamagochi t = seleccionar(scan, lista);
-        if (t != null) t.alimentar();
+        if (t == null) return;
+
+        if (!t.isEstaVivo()) {
+            System.out.println(t.getNombre() + " está muerto 😢");
+            return;
+        }
+
+        if (t.getEstado() != Estados.OCIOSO) {
+            System.out.println(t.getNombre() + " está ocupado ahora (" + t.getEstado() + ").");
+            return;
+        }
+
+        t.alimentar();
     }
+
 
     public static void jugar(Scanner scan, ArrayList<Tamagochi> lista) {
         Tamagochi t = seleccionar(scan, lista);
@@ -72,19 +87,40 @@ public class Cuidador {
 
     public static void limpiar(Scanner scan, ArrayList<Tamagochi> lista) {
         Tamagochi t = seleccionar(scan, lista);
-        if (t != null) t.limpiar();
+        if (t == null) return;
+
+        if (!t.isEstaVivo()) {
+            System.out.println(t.getNombre() + " está muerto 😢");
+            return;
+        }
+
+        if (t.getEstado() != Estados.OCIOSO) {
+            System.out.println(t.getNombre() + " está ocupado ahora (" + t.getEstado() + ").");
+            return;
+        }
+
+        t.limpiar();
     }
+
 
     public static void matar(Scanner scan, ArrayList<Tamagochi> lista) {
         Tamagochi t = seleccionar(scan, lista);
-        if (t != null) t.morir("El cuidador lo ha matado.");
+        if (t == null) return;
+
+        if (!t.isEstaVivo()) {
+            System.out.println(t.getNombre() + " ya está muerto.");
+            return;
+        }
+
+        t.morir("El cuidador lo ha matado.");
     }
+
 
     public static void consultarEstado(ArrayList<Tamagochi> lista) {
         System.out.println("\n===== ESTADO DE TAMAGOCHIS =====");
         for (Tamagochi t : lista) {
-            System.out.printf("%s → Vivo: %b | Ocupado: %b | Suciedad: %d%n",
-                    t.getNombre(), t.isEstaVivo(), t.isOcupado(), t.getSuciedad());
+            System.out.printf("%s → Vivo: %b | Estado: %s | Suciedad: %d%n",
+                    t.getNombre(), t.isEstaVivo(), t.getEstado(), t.getSuciedad());
         }
         System.out.println("=================================\n");
     }
@@ -93,8 +129,8 @@ public class Cuidador {
         System.out.println("\nElige un Tamagochi:");
         for (int i = 0; i < lista.size(); i++) {
             Tamagochi t = lista.get(i);
-            System.out.printf("%d. %s (Vivo: %b, Ocupado: %b)%n",
-                    i + 1, t.getNombre(), t.isEstaVivo(), t.isOcupado());
+            System.out.printf("%d. %s (Vivo: %b, Estado: %s)%n",
+                    i + 1, t.getNombre(), t.isEstaVivo(), t.getEstado());
         }
 
         try {
