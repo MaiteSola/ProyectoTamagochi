@@ -5,150 +5,130 @@ import java.util.Scanner;
 
 public class Tamagochi implements Runnable {
 
-	Scanner scan = new Scanner(System.in);
+    private final Scanner scan = new Scanner(System.in);
+    private final long ritmoComida; 
+    private int suciedad = 0;
+    private boolean estaVivo = true;
+    private final long tiempoInicio;
+    private boolean ocupado = false;
+    private final String nombre;
 
-	private long ritmoComida; // Controlo el tiempo que tarda en comer
-	private int suciedad = 0;
-	private boolean estaVivo = true;
-	private long tiempoInicio;
-	private boolean ocupado = false;
+    // ======== Getters ========
+    public String getNombre() {
+        return nombre;
+    }
 
-	// getters
-	private String nombre;
+    public long getRitmoComida() {
+        return ritmoComida;
+    }
 
-	public String getNombre() {
-		return nombre;
-	}
+    public int getSuciedad() {
+        return suciedad;
+    }
 
-	public long getRitmoComida() {
-		return ritmoComida;
-	}
+    public boolean isEstaVivo() {
+        return estaVivo;
+    }
 
-	public int getSuciedad() {
-		return suciedad;
-	}
+    public long getTiempoInicio() {
+        return tiempoInicio;
+    }
 
-	public boolean isEstaVivo() {
-		return estaVivo;
-	}
+    public boolean isOcupado() {
+        return ocupado;
+    }
 
-	public long getTiempoInicio() {
-		return tiempoInicio;
-	}
+    // ======== Constructor ========
+    public Tamagochi(String nombre, long ritmoComida) {
+        this.nombre = nombre;
+        this.ritmoComida = ritmoComida;
+        this.tiempoInicio = System.currentTimeMillis();
+    }
 
-	public boolean isOcupado() {
-		return ocupado;
-	}
+    @Override
+    public void run() {
+        while (estaVivo) {
+            try {
+                Thread.sleep(20000);
+                suciedad++;
+                if (suciedad == 5) {
+                    System.out.println(nombre + ": Estoy empezando a estar muy sucio...");
+                }
+                if (suciedad >= 10) {
+                    morir("ha muerto por suciedad.");
+                }
+                if (System.currentTimeMillis() - tiempoInicio > 300000) { // 5 minutos
+                    morir("ha muerto de viejo.");
+                }
+            } catch (InterruptedException e) {
+            	// Si quiero que se pueda interrumpir lo hago aquí.
+            }
+        }
+    }
 
-	public Tamagochi(String nombre, long ritmoComida) {
-		super();
-		this.nombre = nombre;
-		this.ritmoComida = ritmoComida;
-		this.tiempoInicio = System.currentTimeMillis(); // Para controlar el tiempo de vida.
-	}
+    public void morir(String motivo) {
+        if (!estaVivo) return;
+        estaVivo = false;
+        ocupado = false;
+        System.out.println(nombre + " " + motivo);
+    }
 
-	@Override
-	public void run() {
+    public void alimentar() {
+        if (ocupado || !estaVivo) return;
+        ocupado = true;
+        try {
+            System.out.println(nombre + ": Empiezo a comer...");
+            try {
+                Thread.sleep(ritmoComida);
+            } catch (InterruptedException ignored) {
+            	// Si quiero que se pueda interrumpir lo hago aquí.
+            }
+            System.out.println(nombre + ": He terminado de comer.");
+        } finally {
+            ocupado = false;
+        }
+    }
 
-		while (estaVivo) {
+    public void jugar() {
+        if (ocupado || !estaVivo) return;
+        ocupado = true;
+        try {
+            Random rnd = new Random();
+            int num1 = rnd.nextInt(10);
+            int num2 = rnd.nextInt(10);
+            int resultado = num1 + num2;
+            int respuesta = -1;
 
-			// Controlas la suciedad
+            System.out.println(nombre + ": ¡VAMOS A JUGAR A SUMAS!");
+            do {
+                System.out.print(num1 + " + " + num2 + " = ");
+                try {
+                    respuesta = Integer.parseInt(scan.nextLine());
+                } catch (NumberFormatException e) {
+                    System.out.println("Introduce un número válido.");
+                }
+            } while (resultado != respuesta);
 
-			try {
-			
-				Thread.sleep(20000);
-				suciedad += 1;
-				if (suciedad == 5) {
-					System.out.println("Estoy empezando a estar muy sucio...");
-				}
+            System.out.println(nombre + ": ¡Acertaste!");
+        } finally {
+            ocupado = false;
+        }
+    }
 
-				if (suciedad >= 10) {
-
-					morir("ha muerto por sucio.");
-				}
-
-				if (System.currentTimeMillis() - tiempoInicio > 300000) {
-					// 300.000 ms son 5 minutos
-					morir("ha muerto de viejo");
-				}
-
-			} catch (InterruptedException e) {
-				// No necesito sacar mensaje, aquí entra si el cuidador le interrumpe.
-
-			}
-
-		}
-
-	}
-
-	public void morir(String motivo) {
-
-		if (!estaVivo)
-			return; // Si ya no está no se puede matar
-		estaVivo = false;
-		ocupado = false;
-		System.out.println(nombre + " " + motivo);
-	}
-
-	public void alimentar() {
-
-		if (ocupado || !estaVivo)
-			return;
-		ocupado = true;
-
-		try {
-			System.out.println("Empiezo a comer");
-			Thread.sleep(ritmoComida);
-			System.out.println("He terminado de comer");
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} finally {
-			ocupado = false;
-		}
-
-	}
-
-	public void jugar() {
-
-		if (ocupado || !estaVivo)
-			return;
-		ocupado = true;
-		Random rnd = new Random();
-		int num1 = rnd.nextInt(0, 10);
-		int num2 = rnd.nextInt(0, 10);
-		int resultado = num1 + num2;
-		int result = 0;
-		System.out.println("VAMOS A JUGAR A SUMAS");
-		do {
-			System.out.println(num1 + " + " + num2 + "= ");
-			String resultadoStr = scan.nextLine();
-			result = Integer.parseInt(resultadoStr);
-
-		} while (resultado != result);
-
-		System.out.println("¡Acertaste!");
-
-	}
-
-	public void limpiar() {
-
-		if (ocupado || !estaVivo)
-			return;
-		ocupado = true;
-
-		try {
-			System.out.println("Empiezo a limpiarme");
-			Thread.sleep(5000);
-
-			suciedad = 0;
-			System.out.println("Me he limpiado");
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} finally {
-			ocupado = false;
-		}
-	}
-
+    public void limpiar() {
+        if (ocupado || !estaVivo) return;
+        ocupado = true;
+        try {
+            System.out.println(nombre + ": Empiezo a limpiarme...");
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException ignored) {
+                // Si quiero que se pueda interrumpir lo hago aquí.
+            }
+            suciedad = 0;
+            System.out.println(nombre + ": ¡Me he limpiado!");
+        } finally {
+            ocupado = false;
+        }
+    }
 }
